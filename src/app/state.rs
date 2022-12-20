@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use sqlx::PgPool;
 
-use crate::interactors::UserUseCaseImpl;
+use crate::interactors::pg::UserUseCaseImpl;
 use crate::{infra::pg::PgRepositories, usecases::UserUseCase};
 
 pub trait Context: Send + Sync + 'static {
