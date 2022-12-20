@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  db:
+    build: ./docker/db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.db:/var/lib/postgresql/data
+      - ./database:/work
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: p@ssw0rd
+    env_file:
+      - .env.local
