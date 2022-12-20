@@ -1,4 +1,3 @@
-use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
 
@@ -16,7 +15,7 @@ impl UserRepositoryImpl {
 
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
-    async fn list_users(&self) -> Result<Vec<User>, sqlx::Error> {
+    async fn list_users(&self) -> anyhow::Result<Vec<User>, sqlx::Error> {
         let sql = "SELECT * from users";
         sqlx::query_as::<_, User>(sql).fetch_all(&self.conn).await
     }

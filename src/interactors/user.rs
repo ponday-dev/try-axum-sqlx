@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use anyhow::{bail, Result};
+use anyhow::bail;
 use async_trait::async_trait;
 
 use crate::{
@@ -23,7 +23,7 @@ impl<R: Repositories> UserUseCaseImpl<R> {
 
 #[async_trait]
 impl<R: Repositories> UserUseCase for UserUseCaseImpl<R> {
-    async fn list_users(&self) -> Result<Vec<User>> {
+    async fn list_users(&self) -> anyhow::Result<Vec<User>> {
         let result = self.repos.user().list_users().await;
 
         match result {
