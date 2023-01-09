@@ -1,6 +1,6 @@
 mod user;
 
-use sqlx::PgPool;
+use sqlx::{pool::PoolConnection, Postgres, Transaction};
 pub use user::*;
 
 use crate::repositories::Repositories;
@@ -10,14 +10,14 @@ pub struct PgRepositories {
 }
 
 impl PgRepositories {
-    pub fn new(conn: PgPool) -> Self {
-        let user_repository = UserRepositoryImpl::new(conn.clone());
+    pub fn new() -> Self {
+        let user_repository = UserRepositoryImpl::new();
 
         Self { user_repository }
     }
 }
 
-impl Repositories for PgRepositories {
+impl Repositories<PoolConnection<Postgres>, Transaction<'_, Postgres>> for PgRepositories {
     type UserRepo = UserRepositoryImpl;
 
     fn user(&self) -> &Self::UserRepo {

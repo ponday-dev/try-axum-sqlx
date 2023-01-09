@@ -1,22 +1,38 @@
 use async_trait::async_trait;
-use sqlx::PgPool;
+use sqlx::{pool::PoolConnection, Postgres, Transaction};
 
-use crate::{models::User, repositories::UserRepository};
+use crate::{
+    models::User,
+    repositories::{CreateUserDto, UserRepository},
+};
 
-pub struct UserRepositoryImpl {
-    conn: PgPool,
-}
+pub struct UserRepositoryImpl;
 
 impl UserRepositoryImpl {
-    pub fn new(conn: PgPool) -> Self {
-        Self { conn }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
 #[async_trait]
-impl UserRepository for UserRepositoryImpl {
-    async fn list_users(&self) -> anyhow::Result<Vec<User>, sqlx::Error> {
+impl UserRepository<PoolConnection<Postgres>, Transaction<'_, Postgres>> for UserRepositoryImpl {
+    async fn list_users(
+        &self,
+        conn: &mut PoolConnection<Postgres>,
+    ) -> anyhow::Result<Vec<User>, sqlx::Error> {
         let sql = "SELECT * from users";
-        sqlx::query_as::<_, User>(sql).fetch_all(&self.conn).await
+        sqlx::query_as::<_, User>(sql).fetch_all(&mut *conn).await
+    }
+
+    async fn create_user(
+        &self,
+        tx: &mut Transaction<Postgres>,
+        data: CreateUserDto,
+    ) -> anyhow::Result<User, sqlx::Error> {
+        let sql = "INSERT INTO users (name) VALUES (?)";
+        sqlx::query_as::<_, User>(sql)
+            .bind(&data.name)
+            .fetch_one(&mut *tx)
+            .await
     }
 }

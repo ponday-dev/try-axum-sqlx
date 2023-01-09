@@ -18,9 +18,9 @@ pub struct PgContext {
 
 impl PgContext {
     pub fn new(conn: PgPool) -> Self {
-        let repositories = PgRepositories::new(conn);
+        let repositories = PgRepositories::new();
 
-        let user_usecase = UserUseCaseImpl::new(repositories);
+        let user_usecase = UserUseCaseImpl::new(conn.clone(), repositories);
 
         Self { user_usecase }
     }
