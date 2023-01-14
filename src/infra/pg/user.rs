@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use sqlx::{pool::PoolConnection, Postgres, Transaction};
 
 use crate::{
-    models::User,
-    repositories::{CreateUserDto, UserRepository},
+    models::{CreateUserDto, User},
+    repositories::UserRepository,
 };
 
 pub struct UserRepositoryImpl;
@@ -29,7 +29,7 @@ impl UserRepository<PoolConnection<Postgres>, Transaction<'_, Postgres>> for Use
         tx: &mut Transaction<Postgres>,
         data: CreateUserDto,
     ) -> anyhow::Result<User, sqlx::Error> {
-        let sql = "INSERT INTO users (name) VALUES (?)";
+        let sql = "INSERT INTO users (name) VALUES ($1) returning *";
         sqlx::query_as::<_, User>(sql)
             .bind(&data.name)
             .fetch_one(&mut *tx)

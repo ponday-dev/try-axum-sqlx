@@ -1,10 +1,6 @@
-use crate::models::User;
+use crate::models::{CreateUserDto, User};
 use async_trait::async_trait;
 use std::marker::{Send, Sync};
-
-pub struct CreateUserDto {
-    pub name: String,
-}
 
 #[async_trait]
 pub trait UserRepository<Conn, Tran>: Send + Sync + 'static {

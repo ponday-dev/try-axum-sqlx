@@ -5,8 +5,8 @@ use async_trait::async_trait;
 use sqlx::{pool::PoolConnection, PgPool, Postgres, Transaction};
 
 use crate::{
-    models::User,
-    repositories::{CreateUserDto, Repositories, UserRepository},
+    models::{CreateUserDto, User},
+    repositories::{Repositories, UserRepository},
     usecases::UserUseCase,
 };
 
@@ -46,13 +46,10 @@ where
         }
     }
 
-    async fn create_user(&self) -> anyhow::Result<User> {
+    async fn create_user(&self, user: CreateUserDto) -> anyhow::Result<User> {
         let mut tx = self.conn.begin().await?;
 
-        let data = CreateUserDto {
-            name: "Test".to_string(),
-        };
-        let result = self.repos.user().create_user(&mut tx, data).await;
+        let result = self.repos.user().create_user(&mut tx, user).await;
 
         match result {
             Ok(user) => {
