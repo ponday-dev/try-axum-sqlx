@@ -3,4 +3,5 @@
 ```
 dc up -d
 make migrate
+cargo run
 ```
