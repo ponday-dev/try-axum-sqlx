@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use sqlx::{pool::PoolConnection, Postgres, Transaction};
 
 use crate::{
+    app::error::AppError,
     models::{CreateUserDto, User},
     repositories::UserRepository,
 };
@@ -19,20 +20,30 @@ impl UserRepository<PoolConnection<Postgres>, Transaction<'_, Postgres>> for Use
     async fn list_users(
         &self,
         conn: &mut PoolConnection<Postgres>,
-    ) -> anyhow::Result<Vec<User>, sqlx::Error> {
+    ) -> anyhow::Result<Vec<User>, AppError> {
         let sql = "SELECT * from users";
-        sqlx::query_as::<_, User>(sql).fetch_all(&mut *conn).await
+        let result = sqlx::query_as::<_, User>(sql).fetch_all(&mut *conn).await;
+
+        match result {
+            Ok(users) => Ok(users),
+            Err(e) => Err(AppError::QueryError(e)),
+        }
     }
 
     async fn create_user(
         &self,
         tx: &mut Transaction<Postgres>,
         data: CreateUserDto,
-    ) -> anyhow::Result<User, sqlx::Error> {
+    ) -> anyhow::Result<User, AppError> {
         let sql = "INSERT INTO users (name) VALUES ($1) returning *";
-        sqlx::query_as::<_, User>(sql)
+        let result = sqlx::query_as::<_, User>(sql)
             .bind(&data.name)
             .fetch_one(&mut *tx)
-            .await
+            .await;
+
+        match result {
+            Ok(user) => Ok(user),
+            Err(e) => Err(AppError::QueryError(e)),
+        }
     }
 }
